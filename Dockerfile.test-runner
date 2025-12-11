@@ -1,0 +1,31 @@
+# Test Runner Dockerfile
+FROM mcr.microsoft.com/playwright:v1.49.1-noble
+
+# Set working directory
+WORKDIR /app
+
+# Install Node.js dependencies
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY cucumber.js ./
+
+# Copy shared packages
+COPY packages/ ./packages/
+
+# Install dependencies
+RUN npm install
+
+# Build shared packages
+RUN npm run build:packages
+
+# Copy test suite
+COPY examples/ ./examples/
+
+# Install Playwright browsers (already in base image, but ensure chromium)
+RUN npx playwright install chromium
+
+# Set environment
+ENV NODE_ENV=test
+
+# Default command runs all tests
+CMD ["npx", "cucumber-js"]

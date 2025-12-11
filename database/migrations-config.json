@@ -1,0 +1,11 @@
+{
+  "host": "localhost",
+  "port": 5432,
+  "database": "watt",
+  "user": "watt",
+  "password": "watt_dev_password",
+  "migrationsTable": "pgmigrations",
+  "dir": "migrations",
+  "schema": "public",
+  "checkOrder": true
+}

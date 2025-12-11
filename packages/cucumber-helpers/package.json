@@ -1,0 +1,22 @@
+{
+  "name": "@watt/cucumber-helpers",
+  "version": "0.1.0",
+  "description": "Cucumber helpers and step definition utilities for WATT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^12.3.0",
+    "@playwright/test": "^1.57.0",
+    "@watt/test-data-loader": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}

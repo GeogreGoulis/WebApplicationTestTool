@@ -1,0 +1,157 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: watt-postgres
+    environment:
+      POSTGRES_DB: watt
+      POSTGRES_USER: watt
+      POSTGRES_PASSWORD: watt_dev_password
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U watt']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - watt-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: watt-redis
+    command: redis-server --appendonly yes
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - watt-network
+
+  # RabbitMQ Message Queue
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: watt-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: watt
+      RABBITMQ_DEFAULT_PASS: watt_dev_password
+    ports:
+      - '5672:5672'   # AMQP port
+      - '15672:15672' # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'check_port_connectivity']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - watt-network
+
+  # MinIO Object Storage
+  minio:
+    image: minio/minio:latest
+    container_name: watt-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: watt
+      MINIO_ROOT_PASSWORD: watt_dev_password
+    ports:
+      - '9000:9000' # API port
+      - '9001:9001' # Console port
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - watt-network
+
+  # Create MinIO buckets on startup
+  minio-setup:
+    image: minio/mc:latest
+    container_name: watt-minio-setup
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 watt watt_dev_password;
+      /usr/bin/mc mb myminio/test-scripts --ignore-existing;
+      /usr/bin/mc mb myminio/test-artifacts --ignore-existing;
+      /usr/bin/mc mb myminio/reports --ignore-existing;
+      /usr/bin/mc mb myminio/logs --ignore-existing;
+      echo 'MinIO buckets created successfully';
+      exit 0;
+      "
+    networks:
+      - watt-network
+
+  # API Gateway Service
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    container_name: watt-api-gateway
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://watt:watt_dev_password@postgres:5432/watt
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-secret-change-in-production
+      CORS_ORIGIN: http://localhost:3001
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - watt-network
+    restart: unless-stopped
+
+  # Core Application Service
+  core-app:
+    build:
+      context: .
+      dockerfile: services/core-app/Dockerfile
+    container_name: watt-core-app
+    ports:
+      - '3100:3100'
+    environment:
+      NODE_ENV: development
+      PORT: 3100
+      DATABASE_URL: postgresql://watt:watt_dev_password@postgres:5432/watt
+      RABBITMQ_URL: amqp://watt:watt_dev_password@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - watt-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  watt-network:
+    driver: bridge

@@ -1,0 +1,21 @@
+{
+  "name": "@watt/database",
+  "version": "0.1.0",
+  "description": "Database migrations and schema for WATT",
+  "scripts": {
+    "migrate": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:create": "node-pg-migrate create",
+    "seed": "ts-node seeds/index.ts"
+  },
+  "dependencies": {
+    "node-pg-migrate": "^7.0.0",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/pg": "^8.10.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
