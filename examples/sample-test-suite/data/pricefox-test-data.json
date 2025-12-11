@@ -1,0 +1,40 @@
+{
+  "baseUrl": "https://www.pricefox.gr",
+  "cookieConsent": {
+    "buttonText": "Accept All"
+  },
+  "navigation": {
+    "carInsuranceButton": "Ασφάλεια Αυτοκινήτου"
+  },
+  "vehicle": {
+    "plate": "ΙΜΒ4895",
+    "category": "Επιβατικό Ι.Χ.",
+    "make": "Seat",
+    "registrationDate": "08/2008",
+    "model": "Leon",
+    "fuelType": "Βενζίνη",
+    "cubicCapacity": "1390",
+    "modelVersion": "1.4 16v TSi Sport Hatchback 5θυρο"
+  },
+  "driver": {
+    "birthDate": "25/07/1982",
+    "licenseYear": "2000",
+    "postalCode": "17563, Π. ΦΑΛΗΡΟ"
+  },
+  "buttons": {
+    "compare": "Σύγκρινε τώρα",
+    "next": "Επόμενο"
+  },
+  "fieldLabels": {
+    "vehicleCategory": "Κατηγορία Οχήματος",
+    "make": "Μάρκα",
+    "registrationDate": "Ημερομηνία πρ. κυκλοφορίας",
+    "model": "Μοντέλο",
+    "fuelType": "Είδος καυσίμου",
+    "cubicCapacity": "Κυβικά",
+    "modelVersion": "Έκδοση μοντέλου",
+    "birthDate": "Ημερομηνία γέννησης",
+    "licenseYear": "Έτος έκδοσης διπλώματος",
+    "postalCode": "Ταχυδρομικός κώδικας"
+  }
+}

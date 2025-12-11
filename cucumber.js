@@ -3,7 +3,8 @@ module.exports = {
         requireModule: ['ts-node/register'],
         require: [
             'examples/sample-test-suite/step-definitions/example_login.steps.ts',
-            'examples/sample-test-suite/step-definitions/pricefox_navigation.steps.ts'
+            'examples/sample-test-suite/step-definitions/pricefox_navigation.steps.ts',
+            'examples/sample-test-suite/step-definitions/pricefox.steps.ts'
         ],
         format: ['progress'],
         formatOptions: { snippetInterface: 'async-await' },
