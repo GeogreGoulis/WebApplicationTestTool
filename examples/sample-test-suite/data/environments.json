@@ -1,0 +1,111 @@
+{
+  "$schema": "../../schemas/test-data.schema.json",
+  "metadata": {
+    "description": "Environment configurations for test execution",
+    "version": "1.0.0"
+  },
+  "environments": {
+    "development": {
+      "name": "Development",
+      "baseUrl": "https://dev.example.com",
+      "apiUrl": "https://api.dev.example.com",
+      "timeout": 30000,
+      "retries": 3,
+      "features": {
+        "debugMode": true,
+        "mockServices": true,
+        "slowMotion": 100
+      }
+    },
+    "staging": {
+      "name": "Staging",
+      "baseUrl": "https://staging.example.com",
+      "apiUrl": "https://api.staging.example.com",
+      "timeout": 20000,
+      "retries": 2,
+      "features": {
+        "debugMode": false,
+        "mockServices": false,
+        "slowMotion": 0
+      }
+    },
+    "production": {
+      "name": "Production",
+      "baseUrl": "https://www.example.com",
+      "apiUrl": "https://api.example.com",
+      "timeout": 15000,
+      "retries": 1,
+      "features": {
+        "debugMode": false,
+        "mockServices": false,
+        "slowMotion": 0
+      }
+    }
+  },
+  "browsers": {
+    "chrome": {
+      "name": "Google Chrome",
+      "headless": true,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "args": ["--disable-gpu", "--no-sandbox"]
+    },
+    "firefox": {
+      "name": "Mozilla Firefox",
+      "headless": true,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "safari": {
+      "name": "Safari (WebKit)",
+      "headless": true,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "edge": {
+      "name": "Microsoft Edge",
+      "headless": true,
+      "channel": "msedge",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    "mobile-chrome": {
+      "name": "Mobile Chrome",
+      "headless": true,
+      "device": "Pixel 5",
+      "viewport": {
+        "width": 393,
+        "height": 851
+      },
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "mobile-safari": {
+      "name": "Mobile Safari",
+      "headless": true,
+      "device": "iPhone 13",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "isMobile": true,
+      "hasTouch": true
+    }
+  },
+  "defaultConfig": {
+    "environment": "staging",
+    "browsers": ["chrome"],
+    "parallel": 4,
+    "video": "on-failure",
+    "screenshots": "on-failure",
+    "trace": "on-failure"
+  }
+}

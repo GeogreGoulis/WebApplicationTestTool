@@ -1,0 +1,361 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://watt.io/schemas/test-data.schema.json",
+  "title": "WATT Test Data Schema",
+  "description": "JSON Schema for validating test data files used with .feature files in WATT",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema for IDE validation support"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Information about the test data file",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of this data file"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version of this data file"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "staging", "production", "all"],
+          "description": "Target environment for this data"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date",
+          "description": "Last update date in YYYY-MM-DD format"
+        },
+        "author": {
+          "type": "string",
+          "description": "Author or team responsible for this data"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Tags for categorizing this data file"
+        }
+      },
+      "required": ["description", "version"]
+    },
+    "users": {
+      "type": "object",
+      "description": "User account data for authentication tests",
+      "additionalProperties": {
+        "$ref": "#/definitions/user"
+      }
+    },
+    "environments": {
+      "type": "object",
+      "description": "Environment-specific configurations",
+      "additionalProperties": {
+        "$ref": "#/definitions/environment"
+      }
+    },
+    "browsers": {
+      "type": "object",
+      "description": "Browser configurations",
+      "additionalProperties": {
+        "$ref": "#/definitions/browser"
+      }
+    },
+    "errors": {
+      "type": "object",
+      "description": "Error messages for validation",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "security": {
+      "$ref": "#/definitions/securityConfig"
+    },
+    "testAccounts": {
+      "type": "array",
+      "description": "Array of test account configurations",
+      "items": {
+        "$ref": "#/definitions/testAccount"
+      }
+    },
+    "defaultConfig": {
+      "$ref": "#/definitions/executionConfig"
+    }
+  },
+  "definitions": {
+    "user": {
+      "type": "object",
+      "description": "User account data",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User email address"
+        },
+        "username": {
+          "type": "string",
+          "description": "Username (if different from email)"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 1,
+          "description": "User password (use secure test passwords)"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User's display name"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "manager", "user", "guest", "viewer"],
+          "description": "User role in the system"
+        },
+        "permissions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of user permissions"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the account is enabled"
+        },
+        "locked": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the account is locked"
+        },
+        "lockReason": {
+          "type": "string",
+          "description": "Reason for account lock (if locked)"
+        },
+        "mfaEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether MFA is enabled for this user"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Additional user metadata",
+          "additionalProperties": true
+        }
+      },
+      "required": ["email", "password"]
+    },
+    "environment": {
+      "type": "object",
+      "description": "Environment configuration",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable environment name"
+        },
+        "baseUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Base URL for the application"
+        },
+        "apiUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "API base URL"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 300000,
+          "default": 30000,
+          "description": "Default timeout in milliseconds"
+        },
+        "retries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 2,
+          "description": "Number of retry attempts for failed tests"
+        },
+        "features": {
+          "type": "object",
+          "properties": {
+            "debugMode": { "type": "boolean" },
+            "mockServices": { "type": "boolean" },
+            "slowMotion": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Slow motion delay in ms (for debugging)"
+            }
+          }
+        }
+      },
+      "required": ["name", "baseUrl"]
+    },
+    "browser": {
+      "type": "object",
+      "description": "Browser configuration",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Browser display name"
+        },
+        "headless": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run browser in headless mode"
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["chrome", "msedge", "chrome-beta", "msedge-beta", "msedge-dev"],
+          "description": "Browser channel for Chromium"
+        },
+        "device": {
+          "type": "string",
+          "description": "Device name for mobile emulation"
+        },
+        "viewport": {
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 320,
+              "maximum": 3840
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 240,
+              "maximum": 2160
+            }
+          },
+          "required": ["width", "height"]
+        },
+        "isMobile": {
+          "type": "boolean",
+          "default": false
+        },
+        "hasTouch": {
+          "type": "boolean",
+          "default": false
+        },
+        "args": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Additional browser launch arguments"
+        }
+      },
+      "required": ["name"]
+    },
+    "securityConfig": {
+      "type": "object",
+      "description": "Security-related configuration",
+      "properties": {
+        "maxLoginAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "lockoutDuration": {
+          "type": "integer",
+          "description": "Lockout duration in minutes"
+        },
+        "sessionTimeout": {
+          "type": "integer",
+          "description": "Session timeout in seconds"
+        },
+        "passwordMinLength": {
+          "type": "integer",
+          "minimum": 6,
+          "maximum": 128
+        },
+        "passwordRequirements": {
+          "type": "object",
+          "properties": {
+            "uppercase": { "type": "boolean" },
+            "lowercase": { "type": "boolean" },
+            "numbers": { "type": "boolean" },
+            "specialChars": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "testAccount": {
+      "type": "object",
+      "description": "Test account with expected outcomes",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Description of this test case"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "expectedResult": {
+          "type": "string",
+          "enum": ["success", "failure"],
+          "description": "Expected outcome of using these credentials"
+        },
+        "expectedError": {
+          "type": "string",
+          "description": "Expected error key (references errors object)"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["email", "password", "expectedResult"]
+    },
+    "executionConfig": {
+      "type": "object",
+      "description": "Default test execution configuration",
+      "properties": {
+        "environment": {
+          "type": "string",
+          "description": "Default environment to use"
+        },
+        "browsers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Browsers to run tests on"
+        },
+        "parallel": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Number of parallel workers"
+        },
+        "video": {
+          "type": "string",
+          "enum": ["always", "on-failure", "never"],
+          "default": "on-failure"
+        },
+        "screenshots": {
+          "type": "string",
+          "enum": ["always", "on-failure", "never"],
+          "default": "on-failure"
+        },
+        "trace": {
+          "type": "string",
+          "enum": ["always", "on-failure", "never"],
+          "default": "on-failure"
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

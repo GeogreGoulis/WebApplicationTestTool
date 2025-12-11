@@ -1,0 +1,114 @@
+{
+  "$schema": "../../schemas/test-data.schema.json",
+  "metadata": {
+    "description": "User credentials and data for authentication tests",
+    "version": "1.0.0",
+    "environment": "staging",
+    "lastUpdated": "2024-12-10"
+  },
+  "users": {
+    "validUser": {
+      "email": "testuser@example.com",
+      "password": "SecurePass123!",
+      "displayName": "Test User",
+      "role": "user",
+      "enabled": true
+    },
+    "admin": {
+      "email": "admin@example.com",
+      "password": "AdminPass456!",
+      "displayName": "Administrator",
+      "role": "admin",
+      "permissions": ["read", "write", "delete", "admin"],
+      "enabled": true
+    },
+    "manager": {
+      "email": "manager@example.com",
+      "password": "ManagerPass789!",
+      "displayName": "Team Manager",
+      "role": "manager",
+      "permissions": ["read", "write", "approve"],
+      "enabled": true
+    },
+    "standard": {
+      "email": "standard@example.com",
+      "password": "StandardPass101!",
+      "displayName": "Standard User",
+      "role": "user",
+      "permissions": ["read"],
+      "enabled": true
+    },
+    "specialChars": {
+      "email": "special@example.com",
+      "password": "P@$$w0rd!#%&*()_+-=[]{}|;':\",./<>?",
+      "displayName": "Special Character User",
+      "role": "user",
+      "enabled": true
+    },
+    "unicode": {
+      "email": "unicode@example.com",
+      "password": "UnicodePass123!",
+      "displayName": "Tester",
+      "role": "user",
+      "enabled": true
+    },
+    "disabled": {
+      "email": "disabled@example.com",
+      "password": "DisabledPass123!",
+      "displayName": "Disabled User",
+      "role": "user",
+      "enabled": false
+    },
+    "locked": {
+      "email": "locked@example.com",
+      "password": "LockedPass123!",
+      "displayName": "Locked User",
+      "role": "user",
+      "enabled": true,
+      "locked": true,
+      "lockReason": "Too many failed login attempts"
+    }
+  },
+  "errors": {
+    "invalidCredentials": "Invalid email or password. Please try again.",
+    "invalidEmailFormat": "Please enter a valid email address.",
+    "requiredFields": "Email and password are required.",
+    "accountLocked": "Your account has been locked due to too many failed login attempts. Please try again later or contact support.",
+    "accountDisabled": "Your account has been disabled. Please contact support.",
+    "sessionExpired": "Your session has expired. Please log in again."
+  },
+  "security": {
+    "maxLoginAttempts": 5,
+    "lockoutDuration": 30,
+    "sessionTimeout": 3600,
+    "passwordMinLength": 8,
+    "passwordRequirements": {
+      "uppercase": true,
+      "lowercase": true,
+      "numbers": true,
+      "specialChars": true
+    }
+  },
+  "testAccounts": [
+    {
+      "description": "Valid login test",
+      "email": "test1@example.com",
+      "password": "Test123!",
+      "expectedResult": "success"
+    },
+    {
+      "description": "Wrong password test",
+      "email": "test1@example.com",
+      "password": "wrongpassword",
+      "expectedResult": "failure",
+      "expectedError": "invalidCredentials"
+    },
+    {
+      "description": "Non-existent user test",
+      "email": "nonexistent@example.com",
+      "password": "anypassword",
+      "expectedResult": "failure",
+      "expectedError": "invalidCredentials"
+    }
+  ]
+}
