@@ -11,6 +11,8 @@ import { createLogger } from '@watt/shared-utils';
 // Routes
 import authRoutes from './routes/auth';
 import testSuitesRoutes from './routes/testSuites';
+import testScriptsRoutes from './routes/testScripts';
+import environmentsRoutes from './routes/environments';
 
 const logger = createLogger('api-gateway');
 
@@ -62,6 +64,8 @@ class Server {
     // API routes
     this.app.use('/api/auth', authRoutes);
     this.app.use('/api/test-suites', testSuitesRoutes);
+    this.app.use('/api/test-scripts', testScriptsRoutes);
+    this.app.use('/api/environments', environmentsRoutes);
 
     // 404 handler
     this.app.use(notFoundHandler);

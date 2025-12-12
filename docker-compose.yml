@@ -142,12 +142,63 @@ services:
       - watt-network
     restart: unless-stopped
 
+  # Test Runner Service
+  test-runner:
+    build:
+      context: .
+      dockerfile: services/test-runner/Dockerfile
+    container_name: watt-test-runner
+    ports:
+      - '3200:3200'
+    environment:
+      NODE_ENV: development
+      PORT: 3200
+      DATABASE_URL: postgresql://watt:watt_dev_password@postgres:5432/watt
+      RABBITMQ_URL: amqp://watt:watt_dev_password@rabbitmq:5672
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: watt
+      MINIO_SECRET_KEY: watt_dev_password
+      MINIO_USE_SSL: "false"
+      PLAYWRIGHT_HEADLESS: "true"
+      VIDEO_RECORDING: "true"
+      SCREENSHOT_ON_FAILURE: "true"
+      MAX_CONCURRENT_TESTS: "3"
+    depends_on:
+      - postgres
+      - rabbitmq
+      - minio
+    networks:
+      - watt-network
+    volumes:
+      - test_artifacts:/app/test-artifacts
+    restart: unless-stopped
+
+  # Frontend Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: watt-frontend
+    ports:
+      - '3001:80'
+    environment:
+      - REACT_APP_API_URL=http://localhost:3000
+      - REACT_APP_CORE_APP_URL=http://localhost:3100
+    depends_on:
+      - api-gateway
+    networks:
+      - watt-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
     driver: local
   redis_data:
     driver: local
   rabbitmq_data:
+    driver: local
+  test_artifacts:
     driver: local
   minio_data:
     driver: local

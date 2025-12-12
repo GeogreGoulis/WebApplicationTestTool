@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "noImplicitReturns": false,
+    "paths": {
+      "@watt/shared-types": ["../../packages/shared-types/dist/index.d.ts"],
+      "@watt/shared-utils": ["../../packages/shared-utils/dist/index.d.ts"],
+      "@watt/cucumber-helpers": ["../../packages/cucumber-helpers/dist/index.d.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

@@ -2,16 +2,16 @@ import { Pool } from 'pg';
 import { config } from './config';
 import { createLogger } from '@watt/shared-utils';
 
-const logger = createLogger('core-app-database');
+const logger = createLogger('test-runner-db');
 
 export const pool = new Pool({
   connectionString: config.database.url,
-  max: 20,
+  max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 });
 
-pool.on('error', (err: any) => {
+pool.on('error', (err: Error) => {
   logger.error('Unexpected database error', { error: err.message });
 });
 

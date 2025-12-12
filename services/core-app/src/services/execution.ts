@@ -80,7 +80,7 @@ export class ExecutionService {
         environmentId: request.environmentId,
         browsers: request.browsers,
         parallelCount: request.parallelCount || 1,
-        scripts: scriptsResult.rows.map((s) => ({
+        scripts: scriptsResult.rows.map((s: any) => ({
           id: s.id,
           name: s.name,
           filePath: s.file_path,
