@@ -9,6 +9,7 @@ import TestSuites from './pages/TestSuites';
 import Executions from './pages/Executions';
 import ExecutionDetails from './pages/ExecutionDetails';
 import Environments from './pages/Environments';
+import Analytics from './pages/Analytics';
 import './App.css';
 
 function App() {
@@ -55,6 +56,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Environments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
               </ProtectedRoute>
             }
           />

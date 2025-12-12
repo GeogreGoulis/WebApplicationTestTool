@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { apiService } from '../services/api';
+import { useExecutionStream } from '../hooks/useExecutionStream';
 import axios from 'axios';
 import '../components/Layout.css';
 
@@ -40,6 +41,20 @@ const ExecutionDetails: React.FC = () => {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Real-time updates
+  const { isConnected, lastUpdate } = useExecutionStream(id || null, {
+    onUpdate: (update) => {
+      console.log('Received execution update:', update);
+      if (execution && update.status) {
+        setExecution({ ...execution, status: update.status });
+      }
+      // Reload data when execution completes
+      if (update.status === 'passed' || update.status === 'failed') {
+        loadExecutionDetails();
+      }
+    },
+  });
 
   useEffect(() => {
     if (id) {

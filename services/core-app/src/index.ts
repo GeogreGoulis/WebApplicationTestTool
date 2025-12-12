@@ -4,6 +4,7 @@ import { testDatabaseConnection } from './database';
 import { rabbitmqService } from './services/rabbitmq';
 import { createLogger } from '@watt/shared-utils';
 import * as executionController from './controllers/execution';
+import sseRoutes from './routes/sse';
 
 const logger = createLogger('core-app');
 
@@ -35,6 +36,9 @@ class CoreApplication {
     // Execution endpoints
     this.app.post('/api/executions', executionController.createExecution);
     this.app.get('/api/executions/:id', executionController.getExecution);
+    
+    // SSE routes for real-time updates
+    this.app.use('/api', sseRoutes);
   }
 
   async start() {

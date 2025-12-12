@@ -41,6 +41,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <span className="icon">🌍</span>
             Environments
           </Link>
+          <Link to="/analytics" className="nav-item">
+            <span className="icon">📈</span>
+            Analytics
+          </Link>
         </nav>
 
         <div className="sidebar-footer">

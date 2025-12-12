@@ -141,13 +141,44 @@ export class PlaywrightExecutor {
       const isFeatureFile = context.testScript.filePath.endsWith('.feature');
 
       if (isFeatureFile) {
-        // For now, execute as a simulated Cucumber test
-        // Full Cucumber integration requires more complex setup with step definitions
-        logger.info('Feature file detected, executing with Playwright', {
+        logger.info('Feature file detected, delegating to Cucumber executor', {
           executionId: context.executionId,
           featureFile: context.testScript.filePath,
         });
 
+        // Close browser/context to let Cucumber handle it
+        await page.close();
+        await browserContext.close();
+        await browser.close();
+        browser = null;
+        browserContext = null;
+        page = null;
+
+        // Use Cucumber executor for feature files
+        const { CucumberExecutor } = await import('./cucumber');
+        const cucumberExecutor = new CucumberExecutor();
+        
+        const cucumberResult = await cucumberExecutor.execute({
+          featurePath: context.testScript.filePath,
+          browserType: context.browser,
+          headless: !config.playwright.headless,
+          baseUrl: context.environment.baseUrl,
+          timeout: config.playwright.timeout,
+          outputDir: path.join(this.artifactsDir, context.executionId),
+        });
+
+        // Convert Cucumber result to TestExecutionResult format
+        return {
+          scriptId: context.testScript.id,
+          browser: context.browser,
+          status: cucumberResult.success ? 'passed' : 'failed',
+          duration: cucumberResult.duration,
+          errorMessage: cucumberResult.errorMessage,
+          screenshots: cucumberResult.artifacts.screenshots,
+          videoPath: cucumberResult.artifacts.videos[0],
+          logs: [`Scenarios: ${cucumberResult.scenarios.passed}/${cucumberResult.scenarios.total} passed`],
+        };
+      }
         // Navigate to base URL
         if (context.environment.baseUrl) {
           await page.goto(context.environment.baseUrl);

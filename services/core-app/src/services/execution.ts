@@ -3,6 +3,7 @@ import { rabbitmqService } from './rabbitmq';
 import { config } from '../config';
 import { createLogger } from '@watt/shared-utils';
 import { TestExecution, ExecutionStatus } from '@watt/shared-types';
+import { broadcastExecutionUpdate } from '../routes/sse';
 
 const logger = createLogger('execution-service');
 
@@ -101,6 +102,14 @@ export class ExecutionService {
         browsers: request.browsers,
       });
 
+      // Broadcast real-time update
+      broadcastExecutionUpdate(execution.id, {
+        type: 'execution_created',
+        status: execution.status,
+        suiteId: execution.suite_id,
+        browsers: execution.browsers,
+      });
+
       return {
         id: execution.id,
         suiteId: execution.suite_id,
@@ -156,6 +165,13 @@ export class ExecutionService {
       );
 
       logger.info('Execution status updated', { executionId, status });
+
+      // Broadcast real-time update
+      broadcastExecutionUpdate(executionId, {
+        type: 'status_change',
+        status,
+        ...additionalData,
+      });
     } catch (error) {
       logger.error('Failed to update execution status', { executionId, error });
       throw error;
