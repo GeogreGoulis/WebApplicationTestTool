@@ -13,15 +13,14 @@ interface Stats {
 
 interface Execution {
   id: string;
-  test_suite_id: string;
+  suiteId: string;
   status: string;
-  browser_type: string;
-  environment_id: string;
-  started_at: string;
-  completed_at: string | null;
-  test_suite?: {
-    name: string;
-  };
+  browsers: string;
+  environmentId: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  triggerSource?: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -167,16 +166,16 @@ const Dashboard: React.FC = () => {
                     {execution.id.substring(0, 8)}
                   </td>
                   <td style={{ padding: '0.75rem' }}>
-                    {execution.test_suite?.name || 'Unknown'}
+                    Suite {execution.suiteId.substring(0, 8)}
                   </td>
                   <td style={{ padding: '0.75rem' }}>
-                    {execution.browser_type}
+                    {execution.browsers}
                   </td>
                   <td style={{ padding: '0.75rem' }}>
                     {getStatusBadge(execution.status)}
                   </td>
                   <td style={{ padding: '0.75rem', fontSize: '0.9rem', color: '#666' }}>
-                    {formatDate(execution.started_at)}
+                    {formatDate(execution.startedAt || execution.createdAt)}
                   </td>
                 </tr>
               ))}

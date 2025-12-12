@@ -210,6 +210,33 @@ export class ExecutionService {
       throw error;
     }
   }
+
+  async listExecutions(): Promise<TestExecution[]> {
+    try {
+      const result = await pool.query(
+        'SELECT * FROM test_executions ORDER BY created_at DESC LIMIT 100'
+      );
+
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        suiteId: row.suite_id,
+        environmentId: row.environment_id,
+        status: row.status,
+        triggeredBy: row.triggered_by,
+        triggerSource: row.trigger_source,
+        browsers: row.browsers,
+        parallelCount: row.parallel_count,
+        startedAt: row.started_at,
+        completedAt: row.completed_at,
+        duration: row.duration,
+        metadata: row.metadata,
+        createdAt: row.created_at,
+      }));
+    } catch (error) {
+      logger.error('Failed to list executions', { error });
+      throw error;
+    }
+  }
 }
 
 export const executionService = new ExecutionService();

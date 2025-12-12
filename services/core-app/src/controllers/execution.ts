@@ -57,3 +57,16 @@ export async function getExecution(req: Request, res: Response) {
     });
   }
 }
+
+export async function listExecutions(_req: Request, res: Response) {
+  try {
+    const executions = await executionService.listExecutions();
+    res.json({ executions });
+  } catch (error: any) {
+    logger.error('Failed to list executions', { error });
+    res.status(500).json({
+      error: 'Failed to list executions',
+      message: error.message,
+    });
+  }
+}

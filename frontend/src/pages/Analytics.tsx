@@ -7,12 +7,12 @@ import '../components/Layout.css';
 interface Execution {
   id: string;
   status: string;
-  browser_type: string;
-  started_at: string;
+  browsers: string | string[];
+  startedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
   duration: number;
-  test_suite?: {
-    name: string;
-  };
+  suiteId?: string;
 }
 
 interface Stats {
@@ -41,16 +41,30 @@ const Analytics: React.FC = () => {
     try {
       setIsLoading(true);
       const response = await axios.get('http://localhost:3100/api/executions');
-      const allExecutions = response.data.executions || [];
+      const allExecutions: Execution[] = (response.data.executions || []).map((exec: any) => {
+        const browsers = Array.isArray(exec.browsers) ? exec.browsers.join(', ') : exec.browsers;
+        return {
+          id: exec.id,
+          status: exec.status,
+          browsers: browsers || 'unknown',
+          startedAt: exec.startedAt || null,
+          completedAt: exec.completedAt || null,
+          createdAt: exec.createdAt || exec.startedAt || new Date().toISOString(),
+          duration: exec.duration ?? 0,
+          suiteId: exec.suiteId,
+        } as Execution;
+      });
 
       // Filter by date range
       const now = new Date();
       const daysAgo = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
       const cutoffDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
       
-      const filtered = allExecutions.filter((exec: Execution) => 
-        new Date(exec.started_at) >= cutoffDate
-      );
+      const filtered = allExecutions.filter((exec: Execution) => {
+        const dateValue = exec.startedAt || exec.createdAt;
+        const parsed = new Date(dateValue);
+        return !Number.isNaN(parsed.getTime()) && parsed >= cutoffDate;
+      });
 
       setExecutions(filtered);
 
@@ -74,9 +88,12 @@ const Analytics: React.FC = () => {
   };
 
   // Chart data transformations
-  const getExecutionsOverTime = () => {
+  const getExecutionsOverTime = (): Array<{ date: string; passed: number; failed: number }> => {
     const grouped = executions.reduce((acc: any, exec) => {
-      const date = new Date(exec.started_at).toLocaleDateString();
+      const dateValue = exec.startedAt || exec.createdAt;
+      const parsed = new Date(dateValue);
+      if (Number.isNaN(parsed.getTime())) return acc;
+      const date = parsed.toLocaleDateString();
       if (!acc[date]) {
         acc[date] = { date, passed: 0, failed: 0 };
       }
@@ -85,14 +102,14 @@ const Analytics: React.FC = () => {
       return acc;
     }, {});
 
-    return Object.values(grouped).sort((a: any, b: any) => 
+    return (Object.values(grouped) as Array<{ date: string; passed: number; failed: number }>).sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
   };
 
-  const getBrowserDistribution = () => {
+  const getBrowserDistribution = (): Array<{ browser: string; count: number }> => {
     const grouped = executions.reduce((acc: any, exec) => {
-      const browser = exec.browser_type || 'unknown';
+      const browser = typeof exec.browsers === 'string' ? exec.browsers : exec.browsers?.join(', ') || 'unknown';
       if (!acc[browser]) {
         acc[browser] = { browser, count: 0 };
       }
@@ -100,12 +117,12 @@ const Analytics: React.FC = () => {
       return acc;
     }, {});
 
-    return Object.values(grouped);
+    return Object.values(grouped) as Array<{ browser: string; count: number }>;
   };
 
-  const getPassRateBySuite = () => {
+  const getPassRateBySuite = (): Array<{ suite: string; passed: number; failed: number; passRate: number }> => {
     const grouped = executions.reduce((acc: any, exec) => {
-      const suite = exec.test_suite?.name || 'Unknown';
+      const suite = exec.suiteId ? `Suite ${exec.suiteId.substring(0, 8)}` : 'Unknown';
       if (!acc[suite]) {
         acc[suite] = { suite, passed: 0, failed: 0 };
       }
@@ -122,12 +139,18 @@ const Analytics: React.FC = () => {
     }));
   };
 
-  const getDurationTrend = () => {
+  const getDurationTrend = (): Array<{ date: string; duration: number }> => {
     return executions
       .filter(e => e.duration > 0)
-      .sort((a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime())
-      .map(exec => ({
-        date: new Date(exec.started_at).toLocaleDateString(),
+      .map((exec) => {
+        const dateValue = exec.startedAt || exec.createdAt;
+        const parsed = new Date(dateValue);
+        return { exec, parsed };
+      })
+      .filter(({ parsed }) => !Number.isNaN(parsed.getTime()))
+      .sort((a, b) => a.parsed.getTime() - b.parsed.getTime())
+      .map(({ exec, parsed }) => ({
+        date: parsed.toLocaleDateString(),
         duration: Math.round(exec.duration / 1000), // Convert to seconds
       }));
   };

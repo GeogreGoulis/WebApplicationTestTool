@@ -1,4 +1,5 @@
 import express, { Application } from 'express';
+import cors from 'cors';
 import { config } from './config';
 import { testDatabaseConnection } from './database';
 import { rabbitmqService } from './services/rabbitmq';
@@ -18,6 +19,10 @@ class CoreApplication {
   }
 
   private setupMiddleware() {
+    this.app.use(cors({
+      origin: ['http://localhost:3001', 'http://localhost:3000'],
+      credentials: true
+    }));
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
   }
@@ -34,6 +39,7 @@ class CoreApplication {
     });
 
     // Execution endpoints
+    this.app.get('/api/executions', executionController.listExecutions);
     this.app.post('/api/executions', executionController.createExecution);
     this.app.get('/api/executions/:id', executionController.getExecution);
     

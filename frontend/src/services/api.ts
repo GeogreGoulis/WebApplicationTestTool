@@ -154,7 +154,7 @@ class ApiService {
   // Test Executions (via Core App)
   async getExecutions() {
     const response = await axios.get('http://localhost:3100/api/executions');
-    return response.data;
+    return response.data.executions || [];
   }
 
   async getExecution(id: string) {
